@@ -7,10 +7,11 @@
         <script src="https://unpkg.com/leaflet@1.4.0/dist/leaflet.js"
         integrity="sha512-QVftwZFqvtRNi0ZyCtsznlKSWOStnDORoefr1enyq5mVL4tmKB3S/EnC3rRJcxCPavG10IcrVGSmPh6Qw5lwrg=="
         crossorigin=""></script>
+        <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
         <script src="geojson/michaelpts.geojson" ></script>
     </head>
     <body> 
-    <h1>Layer controls</h1>
+    <h1>Example Using jquery</h1> 
     <div>
 
     <div id="mapid"></div>
@@ -21,16 +22,16 @@
     <script>  
     // this means that the following lines will be script 
     // (it could also or point to an external script file). 
+    // var map = L.map('mapid').setView([35.91, -79.05], 4); // YOU CAN CHANGE THE ZOOM
 
-    var map = L.map('mapid').setView([35.91, -79.05], 4); // YOU CAN CHANGE THE ZOOM
+    var map = L.map('mapid',{maxZoom:20, minZoom:1}).setView([35.91, -79.05], 4); // You need to set a zoom if you want the cluster method to work 
 
     // this line is creating the variable map by  initializing the L.map class (a Leaflet class) with the mapid element that we created before. setView is a method that can be applied to the class L.map : you can give it a latitude, longitude and a zoom.  The higher the value of the zoom, the finer the initial scale of the map. 
     //*************************************************************
     //  NEW SECTION OF CODE
     //creating several variables with a tile layer
 
-    var OSM = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Physical_Map/MapServer/tile/{z}/{y}/{x}', {
-	attribution: 'Tiles &copy; Esri &mdash; Source: US National Park Service', maxZoom: 8});//.addTo(map);
+    var OSM = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'})//.addTo(map);
     var Esri_WorldImagery = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
 	attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
     });
@@ -45,8 +46,6 @@
         .bindPopup('Hey I am at Carolina Hall 322') // YOU CAN CHANGE THE MESSAGE
         .openPopup();
     
-    // var hm = L.marker([pts.features[0].properties.LAT,pts.features[0].properties.LON]).addTo(map)
-
     // create custom icon variable
 
     // <!-- ************** I CHANGED THE ICON to an icon from  https://www.flaticon.com/free-icons/hurricane ***************** -->
@@ -55,24 +54,18 @@
         iconSize: [50,50], // size of the icon
         popupAnchor: [0,0] // where the icon is located relative to the lat lon of the point. 
         });
-   
-    var hurricane = L.geoJSON(pts, { // open the geoJSON and place a marker 
-        pointToLayer: function (feature, latlng) { 
-        return L.marker(latlng, {icon: uncIcon});}
-        }).addTo(map);
 
-    var baseMaps = {
-    "OSM": OSM,
-    "ESRI Imagery": Esri_WorldImagery,
-    "Topography": Esri_WorldShadedRelief
-    };
+    
+    $.getJSON("./geojson/michaelorig.geojson",function(data){
+        L.geoJson(data  ,{
+            pointToLayer: function(feature,latlng){
+            return L.marker(latlng,{icon: uncIcon});
+            }
+        }  ).addTo(map);
+    });
 
-    var overlayMaps = {
-        "Carolina Hall": layer,
-        "Hurricane":hurricane
-    };
-
-    L.control.layers(baseMaps, overlayMaps).addTo(map);
+    
+    // L.control.layers(baseMaps, overlayMaps).addTo(map);
     OSM.addTo(map);
 
     </script>
